@@ -1,190 +1,105 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Eye, EyeOff } from "lucide-react";
-import Header from "../components/Header";
+import { Eye, EyeOff, ShieldCheck } from "lucide-react";
+import PageWrapper from "../components/PageWrapper";
+import { apiLogin } from "../api";
 
 export default function Login() {
   const [mostrarSenha, setMostrarSenha] = useState(false);
+  const [email, setEmail]   = useState("");
+  const [senha, setSenha]   = useState("");
+  const [erro, setErro]     = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  async function handleLogin() {
+    setErro("");
+    if (!email || !senha) return setErro("Preencha email e senha.");
+    setLoading(true);
+    const data = await apiLogin(email, senha);
+    setLoading(false);
+    if (data.erro) return setErro(data.erro);
+    localStorage.setItem("cg_token",   data.token);
+    localStorage.setItem("cg_usuario", JSON.stringify(data.usuario));
+    navigate("/diagnostico");
+  }
+
   return (
-    <div
-      style={{
-        fontFamily: "Segoe UI",
-        minHeight: "100vh",
-        background:
-          "linear-gradient(135deg, #f8fafc 0%, #eef2ff 50%, #f8fafc 100%)",
-      }}
-    >
-      <Header />
+    <PageWrapper>
+      <div style={page}>
 
-      <div
-        style={{
-          paddingTop: "140px",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          paddingBottom: "40px",
-        }}
-      >
-        <div
-          style={{
-            background: "#fff",
-            padding: "40px",
-            borderRadius: "24px",
-            width: "420px",
-            boxShadow: "0 20px 40px rgba(0,0,0,0.08)",
-            border: "1px solid #e5e7eb",
-          }}
-        >
-          <div
-            style={{
-              textAlign: "center",
-              marginBottom: "25px",
-            }}
-          >
-            <h2
-              style={{
-                margin: 0,
-                color: "#111827",
-                fontSize: "28px",
-                fontWeight: "700",
-              }}
-            >
-              Bem-vindo
-            </h2>
+        {/* Blobs decorativos */}
+        <div style={{ position:"fixed", top:"-100px", left:"-100px", width:"400px", height:"400px", borderRadius:"50%", background:"radial-gradient(circle, rgba(37,99,235,0.12), transparent 70%)", pointerEvents:"none" }} />
+        <div style={{ position:"fixed", bottom:"-80px", right:"-80px", width:"350px", height:"350px", borderRadius:"50%", background:"radial-gradient(circle, rgba(124,58,237,0.10), transparent 70%)", pointerEvents:"none" }} />
 
-            <p
-              style={{
-                marginTop: "8px",
-                color: "#6b7280",
-                fontSize: "14px",
-              }}
-            >
-              Entre para acessar sua conta
-            </p>
+        <div style={wrapper}>
+          {/* Ícone */}
+          <div style={{ textAlign:"center", marginBottom:"8px", animation:"float 3s ease-in-out infinite" }}>
+            <ShieldCheck size={48} color="#2563eb" strokeWidth={1.5} />
           </div>
 
-          <input
-            type="email"
-            placeholder="Seu e-mail"
-            style={input}
-          />
+          <div style={card}>
+            <div style={{ textAlign:"center", marginBottom:"28px" }}>
+              <h2 style={{ fontFamily:"'Syne',sans-serif", fontSize:"28px", fontWeight:800, color:"#0f172a", letterSpacing:"-0.5px" }}>
+                Bem-vindo de volta
+              </h2>
+              <p style={{ marginTop:"6px", color:"#64748b", fontSize:"14px" }}>
+                Entre para acessar sua conta
+              </p>
+            </div>
 
-          <div
-            style={{
-              position: "relative",
-              marginTop: "12px",
-            }}
-          >
             <input
-              type={mostrarSenha ? "text" : "password"}
-              placeholder="Sua senha"
-              style={{
-                ...input,
-                marginTop: 0,
-                paddingRight: "50px",
-              }}
+              className="input-base"
+              type="email"
+              placeholder="Seu e-mail"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
 
+            <div style={{ position:"relative", marginTop:"12px" }}>
+              <input
+                className="input-base"
+                type={mostrarSenha ? "text" : "password"}
+                placeholder="Sua senha"
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+                style={{ paddingRight:"50px" }}
+              />
+              <button type="button" onClick={() => setMostrarSenha(!mostrarSenha)} style={eyeBtn}>
+                {mostrarSenha ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+
+            {erro && (
+              <div style={{ marginTop:"10px", padding:"10px 14px", borderRadius:"10px", background:"rgba(220,38,38,0.08)", border:"1px solid rgba(220,38,38,0.20)", color:"#dc2626", fontSize:"13px" }}>
+                {erro}
+              </div>
+            )}
+
             <button
-              type="button"
-              onClick={() => setMostrarSenha(!mostrarSenha)}
-              style={{
-                position: "absolute",
-                right: "14px",
-                top: "50%",
-                transform: "translateY(-50%)",
-                border: "none",
-                background: "transparent",
-                cursor: "pointer",
-                color: "#6b7280",
-              }}
+              className="btn-primary"
+              onClick={handleLogin}
+              disabled={loading}
+              style={{ marginTop:"24px", opacity: loading ? 0.7 : 1 }}
             >
-              {mostrarSenha ? (
-                <EyeOff size={20} />
-              ) : (
-                <Eye size={20} />
-              )}
+              {loading ? "Entrando..." : "Entrar →"}
             </button>
-          </div>
 
-          <div
-            style={{
-              textAlign: "right",
-              marginTop: "10px",
-            }}
-          >
-            <a
-              href="#"
-              style={{
-                color: "#2563eb",
-                fontSize: "13px",
-                textDecoration: "none",
-                fontWeight: "500",
-              }}
-            >
-              Esqueci minha senha
-            </a>
-          </div>
-
-          <button style={button}>
-            Entrar
-          </button>
-
-          <div
-            style={{
-              textAlign: "center",
-              marginTop: "20px",
-              color: "#6b7280",
-              fontSize: "14px",
-            }}
-          >
-            Não possui conta?{" "}
-            <span
-              onClick={() => navigate("/cadastro")}
-              style={{
-                color: "#2563eb",
-                fontWeight: "600",
-                cursor: "pointer",
-                transition: "0.2s",
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.color = "#1d4ed8";
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.color = "#2563eb";
-              }}
-            >
-              Criar conta
-            </span>
+            <p style={{ textAlign:"center", marginTop:"20px", color:"#64748b", fontSize:"14px" }}>
+              Não tem conta?{" "}
+              <span onClick={() => navigate("/cadastro")} style={{ color:"#2563eb", fontWeight:600, cursor:"pointer" }}>
+                Criar conta
+              </span>
+            </p>
           </div>
         </div>
       </div>
-    </div>
+    </PageWrapper>
   );
 }
 
-const input = {
-  width: "100%",
-  padding: "14px 16px",
-  borderRadius: "12px",
-  border: "1px solid #d1d5db",
-  fontSize: "14px",
-  outline: "none",
-  boxSizing: "border-box",
-};
-
-const button = {
-  width: "100%",
-  marginTop: "24px",
-  padding: "14px",
-  background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
-  color: "#fff",
-  border: "none",
-  borderRadius: "12px",
-  fontSize: "15px",
-  fontWeight: "600",
-  cursor: "pointer",
-  boxShadow: "0 8px 20px rgba(37,99,235,0.25)",
-};
+const page    = { minHeight:"100vh", display:"flex", alignItems:"center", justifyContent:"center", padding:"40px 20px", flexDirection:"column" };
+const wrapper = { width:"100%", maxWidth:"420px", display:"flex", flexDirection:"column", alignItems:"center", gap:"0" };
+const card    = { width:"100%", background:"rgba(255,255,255,0.85)", backdropFilter:"blur(16px)", padding:"40px", borderRadius:"24px", boxShadow:"0 20px 60px rgba(37,99,235,0.13)", border:"1px solid rgba(255,255,255,0.9)" };
+const eyeBtn  = { position:"absolute", right:"14px", top:"50%", transform:"translateY(-50%)", border:"none", background:"transparent", cursor:"pointer", color:"#94a3b8", display:"flex" };

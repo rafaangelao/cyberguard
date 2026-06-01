@@ -1,178 +1,105 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Eye, EyeOff } from "lucide-react";
-import Header from "../components/Header";
+import { Eye, EyeOff, UserPlus } from "lucide-react";
+import PageWrapper from "../components/PageWrapper";
+import { apiCadastro } from "../api";
 
 export default function Cadastro() {
   const navigate = useNavigate();
-
   const [mostrarSenha, setMostrarSenha] = useState(false);
+  const [erro, setErro]       = useState("");
+  const [sucesso, setSucesso] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({ nome:"", email:"", senha:"", empresa:"", papel:"" });
 
-  const [form, setForm] = useState({
-    nome: "",
-    email: "",
-    senha: "",
-    empresa: "",
-    papel: "",
-  });
+  function handleChange(e) { setForm({ ...form, [e.target.name]: e.target.value }); }
 
-  function handleChange(e) {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  }
-
-  function cadastrar() {
-    localStorage.setItem("user", JSON.stringify(form));
-    navigate("/login");
+  async function cadastrar() {
+    setErro("");
+    if (!form.nome || !form.email || !form.senha) return setErro("Preencha nome, email e senha.");
+    setLoading(true);
+    const data = await apiCadastro(form);
+    setLoading(false);
+    if (data.erro) return setErro(data.erro);
+    setSucesso(true);
+    setTimeout(() => navigate("/login"), 1500);
   }
 
   return (
-    <div
-      style={{
-        fontFamily: "Segoe UI",
-        minHeight: "100vh",
-        background:
-          "linear-gradient(135deg, #f8fafc 0%, #eef2ff 50%, #f8fafc 100%)",
-      }}
-    >
-      <Header />
+    <PageWrapper>
+      <div style={page}>
+        <div style={{ position:"fixed", top:"-100px", right:"-100px", width:"400px", height:"400px", borderRadius:"50%", background:"radial-gradient(circle, rgba(124,58,237,0.12), transparent 70%)", pointerEvents:"none" }} />
 
-      <div
-        style={{
-          paddingTop: "140px",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          paddingBottom: "40px",
-        }}
-      >
-        <div
-          style={{
-            background: "#fff",
-            padding: "40px",
-            borderRadius: "24px",
-            width: "430px",
-            boxShadow: "0 20px 40px rgba(0,0,0,0.08)",
-            border: "1px solid #e5e7eb",
-          }}
-        >
-          <div style={{ textAlign: "center", marginBottom: "25px" }}>
-            <h2
-              style={{
-                margin: 0,
-                color: "#111827",
-                fontSize: "28px",
-                fontWeight: "700",
-              }}
-            >
-              Criar conta
-            </h2>
+        <div style={wrapper}>
+          <div style={{ textAlign:"center", marginBottom:"8px", animation:"float 3s ease-in-out infinite" }}>
+            <UserPlus size={48} color="#7c3aed" strokeWidth={1.5} />
+          </div>
 
-            <p
-              style={{
-                color: "#6b7280",
-                marginTop: "8px",
-                fontSize: "14px",
-              }}
-            >
-              Preencha os dados para começar
+          <div style={card}>
+            <div style={{ textAlign:"center", marginBottom:"28px" }}>
+              <h2 style={{ fontFamily:"'Syne',sans-serif", fontSize:"28px", fontWeight:800, color:"#0f172a", letterSpacing:"-0.5px" }}>
+                Criar conta
+              </h2>
+              <p style={{ marginTop:"6px", color:"#64748b", fontSize:"14px" }}>
+                Preencha os dados para começar
+              </p>
+            </div>
+
+            <input className="input-base" name="nome"  placeholder="Nome completo" onChange={handleChange} />
+            <input className="input-base" name="email" type="email" placeholder="Email" onChange={handleChange} style={{ marginTop:"12px" }} />
+
+            <div style={{ position:"relative", marginTop:"12px" }}>
+              <input
+                className="input-base"
+                name="senha"
+                type={mostrarSenha ? "text" : "password"}
+                placeholder="Senha"
+                onChange={handleChange}
+                style={{ paddingRight:"50px" }}
+              />
+              <button type="button" onClick={() => setMostrarSenha(!mostrarSenha)} style={eyeBtn}>
+                {mostrarSenha ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+
+            <input className="input-base" name="empresa" placeholder="Empresa" onChange={handleChange} style={{ marginTop:"12px" }} />
+
+            <select name="papel" onChange={handleChange} className="input-base" style={{ marginTop:"12px", color: form.papel ? "#0f172a" : "#94a3b8" }}>
+              <option value="">Selecione o papel</option>
+              <option value="gestor">Gestor</option>
+              <option value="ti">TI / Segurança</option>
+              <option value="usuario">Usuário comum</option>
+            </select>
+
+            {erro && (
+              <div style={{ marginTop:"10px", padding:"10px 14px", borderRadius:"10px", background:"rgba(220,38,38,0.08)", border:"1px solid rgba(220,38,38,0.20)", color:"#dc2626", fontSize:"13px" }}>
+                {erro}
+              </div>
+            )}
+            {sucesso && (
+              <div style={{ marginTop:"10px", padding:"10px 14px", borderRadius:"10px", background:"rgba(22,163,74,0.08)", border:"1px solid rgba(22,163,74,0.20)", color:"#16a34a", fontSize:"13px" }}>
+                ✅ Conta criada! Redirecionando...
+              </div>
+            )}
+
+            <button className="btn-primary" onClick={cadastrar} disabled={loading} style={{ marginTop:"24px", opacity: loading ? 0.7 : 1 }}>
+              {loading ? "Criando..." : "Criar conta →"}
+            </button>
+
+            <p style={{ textAlign:"center", marginTop:"20px", color:"#64748b", fontSize:"14px" }}>
+              Já tem conta?{" "}
+              <span onClick={() => navigate("/login")} style={{ color:"#2563eb", fontWeight:600, cursor:"pointer" }}>
+                Entrar
+              </span>
             </p>
           </div>
-
-          <input
-            name="nome"
-            placeholder="Nome completo"
-            onChange={handleChange}
-            style={input}
-          />
-
-          <input
-            name="email"
-            type="email"
-            placeholder="Email"
-            onChange={handleChange}
-            style={input}
-          />
-
-          <div style={{ position: "relative", marginTop: "12px" }}>
-            <input
-              name="senha"
-              type={mostrarSenha ? "text" : "password"}
-              placeholder="Senha"
-              onChange={handleChange}
-              style={{
-                ...input,
-                marginTop: 0,
-                paddingRight: "50px",
-              }}
-            />
-
-            <button
-              type="button"
-              onClick={() => setMostrarSenha(!mostrarSenha)}
-              style={{
-                position: "absolute",
-                right: "14px",
-                top: "50%",
-                transform: "translateY(-50%)",
-                background: "transparent",
-                border: "none",
-                cursor: "pointer",
-                color: "#6b7280",
-              }}
-            >
-              {mostrarSenha ? <EyeOff size={20} /> : <Eye size={20} />}
-            </button>
-          </div>
-
-          <input
-            name="empresa"
-            placeholder="Empresa"
-            onChange={handleChange}
-            style={input}
-          />
-
-          <select
-            name="papel"
-            onChange={handleChange}
-            style={input}
-          >
-            <option value="">Selecione o papel</option>
-            <option value="gestor">Gestor</option>
-            <option value="ti">TI / Segurança</option>
-            <option value="usuario">Usuário comum</option>
-          </select>
-
-          <button onClick={cadastrar} style={button}>
-            Criar conta
-          </button>
         </div>
       </div>
-    </div>
+    </PageWrapper>
   );
 }
 
-const input = {
-  width: "100%",
-  padding: "14px 16px",
-  marginTop: "12px",
-  borderRadius: "12px",
-  border: "1px solid #d1d5db",
-  fontSize: "14px",
-  outline: "none",
-  boxSizing: "border-box",
-  transition: "all 0.2s ease",
-};
-
-const button = {
-  width: "100%",
-  marginTop: "24px",
-  padding: "14px",
-  background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
-  color: "#fff",
-  border: "none",
-  borderRadius: "12px",
-  fontSize: "15px",
-  fontWeight: "600",
-  cursor: "pointer",
-  boxShadow: "0 8px 20px rgba(37,99,235,0.25)",
-};
+const page    = { minHeight:"100vh", display:"flex", alignItems:"center", justifyContent:"center", padding:"40px 20px", flexDirection:"column" };
+const wrapper = { width:"100%", maxWidth:"430px", display:"flex", flexDirection:"column", alignItems:"center" };
+const card    = { width:"100%", background:"rgba(255,255,255,0.85)", backdropFilter:"blur(16px)", padding:"40px", borderRadius:"24px", boxShadow:"0 20px 60px rgba(124,58,237,0.12)", border:"1px solid rgba(255,255,255,0.9)" };
+const eyeBtn  = { position:"absolute", right:"14px", top:"50%", transform:"translateY(-50%)", border:"none", background:"transparent", cursor:"pointer", color:"#94a3b8", display:"flex" };
