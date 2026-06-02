@@ -48,3 +48,4 @@ export async function apiListarDiagnosticos() {
   });
   return res.json();
 }
+ 
