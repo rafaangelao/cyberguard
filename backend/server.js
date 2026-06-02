@@ -1,13 +1,13 @@
 const express = require("express");
 const cors    = require("cors");
-const bcrypt  = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const jwt     = require("jsonwebtoken");
 require("dotenv").config();
 
 const db  = require("./db");
 const app = express();
 
-app.use(cors({ origin: "http://localhost:5173" })); // porta padrão Vite
+app.use(cors({ origin: "*" })); // porta padrão Vite
 app.use(express.json());
 
 const JWT_SECRET = process.env.JWT_SECRET || "cyberguard_secret";
