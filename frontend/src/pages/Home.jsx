@@ -8,8 +8,7 @@ const EQUIPE = [
   { nome: "Augusto Martins",              papel: "Desenvolvedor",  emoji: "👨‍💻" },
   { nome: "Danilo Dellape Gonçalves",     papel: "Scrum Master",   emoji: "🧭" },
   { nome: "Lidia Dantas da Silva",        papel: "Desenvolvedora", emoji: "👩‍💻" },
-  { nome: "Matheus Caetano Vinha",        papel: "Desenvolvedor",  emoji: "👨‍💻" },
-  { nome: "Rafael Santiago Angelão",      papel: "Product Owner",  emoji: "🎯" },
+  { nome: "Rafael Santiago Angelão", papel: "Product Owner & Desenvolvedor", emoji: "🎯" },
   { nome: "Yarah de Assis Silveira Araújo", papel: "Desenvolvedora", emoji: "👩‍💻" },
 ];
 
