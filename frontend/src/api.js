@@ -1,7 +1,7 @@
 // src/api.js
 // Centraliza todas as chamadas ao backend CyberGuard
 
-const BASE = "http://localhost:3001";
+const BASE = "https://cyberguard-production-6093.up.railway.app";
 
 function getToken() {
   return localStorage.getItem("cg_token");
